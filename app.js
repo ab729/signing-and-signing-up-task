@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const mongoose = require('mongoose');
 const User = require('./models/userSchema');
+const md5 = require('md5');
 
 
 mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.4zxou.mongodb.net/${process.env.DB_TABLE_NAME}?retryWrites=true&w=majority`);
@@ -22,9 +23,9 @@ app.post('/signup', (req, res)=>{
     const password = req.body.input2;
     const user = new User({
         "email": email,
-        "password": password
+        "password": md5(password)
     });
-    user.save().then(res.redirect('back'))
+    user.save().then(res.redirect('back'));
 });
 app.get('/signin', (req, res)=>{
     res.render('signin');
@@ -33,10 +34,10 @@ app.get('/signin', (req, res)=>{
 app.post('/signin', (req, res)=>{
     User.findOne({email: req.body.input1}, (err, result)=>{
         if(err){
-            console.log("thee user name is not correct");
+            console.log("the user name is not correct");
         } else {
             if(result){
-                if (result.password === req.body.input2) {
+                if (result.password === md5(req.body.input2)) {
                     res.send('done')
                 } else {console.log('password is wrong');}
             }
